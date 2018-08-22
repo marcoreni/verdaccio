@@ -1,6 +1,14 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import {Form, Button, Dialog, Input, Alert} from 'element-react';
+import Button from '@material-ui/core/Button';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import TextField from '@material-ui/core/TextField';
+import Snackbar from '@material-ui/core/Snackbar';
+import SnackbarContent from '@material-ui/core/SnackbarContent';
+import ErrorIcon from '@material-ui/icons/Error';
 
 export default class LoginModal extends Component {
   static propTypes = {
@@ -13,8 +21,8 @@ export default class LoginModal extends Component {
   static defaultProps = {
     visibility: true,
     error: {},
-    onCancel: () => {},
-    onSubmit: () => {}
+    onCancel: () => { },
+    onSubmit: () => { }
   }
 
   state = {
@@ -41,71 +49,93 @@ export default class LoginModal extends Component {
   async submitCredentials(event) {
     // prevents default submit behaviour
     event.preventDefault();
-    const {username, password} = this.state;
+    const { username, password } = this.state;
     await this.props.onSubmit(username, password);
     // let's wait for API response and then set
     // username and password filed to empty state
-    this.setState({username: '', password: ''});
+    this.setState({ username: '', password: '' });
   }
 
-  renderLoginError({type, title, description} = {}) {
+  renderLoginError({ type, title } = {}) {
     return type ? (
-      <Alert
-        title={title}
-        type={type}
-        description={description}
-        showIcon={true}
-        closable={false}
-      />
+      <Snackbar
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'left',
+        }}
+        open={this.state.open}
+        autoHideDuration={6000}
+        onClose={this.handleClose}
+      >
+        <SnackbarContent
+          aria-describedby="client-snackbar"
+          message={
+            <span id="client-snackbar">
+              <ErrorIcon />
+              {title}
+            </span>
+          }
+        />
+      </Snackbar>
     ) : '';
   }
 
   render() {
-    const {visibility, onCancel, error} = this.props;
-    const {username, password} = this.state;
+    const { visibility, onCancel, error } = this.props;
+    const { username, password } = this.state;
+    console.log('username', username);
     return (
-      <div className="login-dialog">
+      <div className="login">
         <Dialog
-          title="Login"
-          size="tiny"
-          visible={visibility}
-          onCancel={onCancel}
+          onClose={onCancel}
+          open={visibility}
+          maxWidth="md"
+          aria-labelledby="login-dialog"
         >
-          <Form className="login-form">
-            <Dialog.Body>
-              {this.renderLoginError(error)}
-              <br />
-              <Input
-                name="username"
-                placeholder="Username"
-                value={username}
-                onChange={this.setCredentials.bind(this, 'username')}
-              />
-              <br />
-              <br />
-              <Input
-                name="password"
-                type="password"
-                placeholder="Type your password"
-                value={password}
-                onChange={this.setCredentials.bind(this, 'password')}
-              />
-            </Dialog.Body>
-            <Dialog.Footer className="dialog-footer">
-              <Button onClick={onCancel} className="cancel-login-button">
-                Cancel
+          <DialogTitle id="login-dialog">Login</DialogTitle>
+          <DialogContent>
+            {this.renderLoginError(error)}
+            <br />
+            <TextField
+              label="Username"
+              placeholder="Please type your username"
+              value={username}
+              onChange={() => this.setCredentials.bind(this, 'username')}
+              margin="normal"
+              required
+              autoFocus
+            />
+
+            <br />
+            <br />
+            <TextField
+              label="Password"
+              type="password"
+              placeholder="Please type your password"
+              value={password}
+              onChange={() => this.setCredentials.bind(this, 'password')}
+              margin="normal"
+              required
+            />
+          </DialogContent>
+          <DialogActions className="dialog-footer">
+            <Button
+              onClick={onCancel}
+              className="cancel-login-button"
+              color="inherit"
+            >
+              Cancel
               </Button>
-              <Button
-                nativeType="submit"
-                className="login-button"
-                onClick={this.submitCredentials}
-              >
-                Login
+            <Button
+              className="login-button"
+              onClick={this.submitCredentials}
+              color="inherit"
+            >
+              Login
             </Button>
-            </Dialog.Footer>
-          </Form>
+          </DialogActions>
         </Dialog>
-      </div>
+      </div >
     );
   }
 }
