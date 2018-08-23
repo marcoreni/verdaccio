@@ -6,9 +6,10 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import TextField from '@material-ui/core/TextField';
-import Snackbar from '@material-ui/core/Snackbar';
 import SnackbarContent from '@material-ui/core/SnackbarContent';
 import ErrorIcon from '@material-ui/icons/Error';
+
+import classes from "./login.scss";
 
 export default class LoginModal extends Component {
   static propTypes = {
@@ -49,48 +50,48 @@ export default class LoginModal extends Component {
   async submitCredentials(event) {
     // prevents default submit behaviour
     event.preventDefault();
+    event.persist();
+
     const { username, password } = this.state;
+    console.log(username, password);
     await this.props.onSubmit(username, password);
     // let's wait for API response and then set
     // username and password filed to empty state
     this.setState({ username: '', password: '' });
   }
 
-  renderLoginError({ type, title } = {}) {
-    return type ? (
-      <Snackbar
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'left',
-        }}
-        open={this.state.open}
-        autoHideDuration={6000}
-        onClose={this.handleClose}
-      >
-        <SnackbarContent
-          aria-describedby="client-snackbar"
-          message={
-            <span id="client-snackbar">
-              <ErrorIcon />
-              {title}
+  renderLoginError({ type, title, description } = {}) {
+    return type === 'error' && (
+      <SnackbarContent
+        className={classes.loginError}
+        aria-describedby="client-snackbar"
+        message={
+          <div 
+            id="client-snackbar"  
+            className={classes.loginErrorMsg}
+          >
+            <ErrorIcon className={classes.loginIcon} />
+            <span>
+              <div><strong>{title}</strong></div>
+              <div>{description}</div>
             </span>
-          }
-        />
-      </Snackbar>
-    ) : '';
+          </div>
+        }
+      />
+    );
   }
 
   render() {
     const { visibility, onCancel, error } = this.props;
     const { username, password } = this.state;
-    console.log('username', username);
     return (
       <div className="login">
         <Dialog
           onClose={onCancel}
           open={visibility}
-          maxWidth="md"
+          maxWidth="xs"
           aria-labelledby="login-dialog"
+          fullWidth
         >
           <DialogTitle id="login-dialog">Login</DialogTitle>
           <DialogContent>
@@ -99,9 +100,9 @@ export default class LoginModal extends Component {
             <TextField
               label="Username"
               placeholder="Please type your username"
-              value={username}
+              defaultValue={username}
               onChange={() => this.setCredentials.bind(this, 'username')}
-              margin="normal"
+              fullWidth
               required
               autoFocus
             />
@@ -112,9 +113,9 @@ export default class LoginModal extends Component {
               label="Password"
               type="password"
               placeholder="Please type your password"
-              value={password}
+              defaultValue={password}
               onChange={() => this.setCredentials.bind(this, 'password')}
-              margin="normal"
+              fullWidth
               required
             />
           </DialogContent>
