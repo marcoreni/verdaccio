@@ -392,9 +392,11 @@ function parseInterval(interval: any) {
  * @return {String}
  */
 function getWebProtocol(req: $Request) {
-  if (req.get('CloudFront-Forwarded-Proto') !== '') {
-    return req.get('CloudFront-Forwarded-Proto');
+  const cffp = req.get('CloudFront-Forwarded-Proto');
+  if (typeof cffp !== 'undefined') {
+    return cffp;
   }
+
   return req.get('X-Forwarded-Proto') || req.protocol;
 }
 
