@@ -392,7 +392,10 @@ function parseInterval(interval: any) {
  * @return {String}
  */
 function getWebProtocol(req: $Request) {
-  return req.get('X-Forwarded-Proto') || req.get('CloudFront-Forwarded-Proto') || req.protocol;
+  if (req.get('CloudFront-Forwarded-Proto') !== '') {
+    return req.get('CloudFront-Forwarded-Proto');
+  }
+  return req.get('X-Forwarded-Proto') || req.protocol;
 }
 
 const getLatestVersion = function(pkgInfo: Package) {
